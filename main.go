@@ -54,9 +54,9 @@ func main() {
 	}
 
 	loggingOutput := opts.Logformat
-	ks_log, err := initLogger(loggingOutput)
+	logger, err := initLogger(loggingOutput)
 	if err != nil {
-		return
+		panic(err)
 	}
 
 	var factories []customresource.RegistryFactory
@@ -69,7 +69,7 @@ func main() {
 		factories = append(factories, crf...)
 	}
 
-	ks_log.Info("Are we there?")
+	logger.Info("Are we there?")
 
 	ctx := context.Background()
 	if err := app.RunKubeStateMetrics(ctx, opts, factories...); err != nil {
