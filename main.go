@@ -23,6 +23,7 @@ import (
 	"strings"
 
 	"github.com/prometheus/common/version"
+	"go.uber.org/zap"
 	"gopkg.in/yaml.v3"
 	"k8s.io/klog/v2"
 
@@ -52,6 +53,12 @@ func main() {
 		os.Exit(0)
 	}
 
+	loggingOutput := opts.Logformat
+	ks_log, err := initLogger(loggingOutput)
+	if err != nil {
+		return
+	}
+
 	var factories []customresource.RegistryFactory
 	if config, set := resolveCustomResourceConfig(opts); set {
 		crf, err := customresourcestate.FromConfig(config)
@@ -61,6 +68,8 @@ func main() {
 		}
 		factories = append(factories, crf...)
 	}
+
+	ks_log.Info("Are we there?")
 
 	ctx := context.Background()
 	if err := app.RunKubeStateMetrics(ctx, opts, factories...); err != nil {
@@ -82,4 +91,25 @@ func resolveCustomResourceConfig(opts *options.Options) (customresourcestate.Con
 		return yaml.NewDecoder(f), true
 	}
 	return nil, false
+}
+
+func initLogger(loggingOutput string) (*zap.Logger, error) {
+	var zaplog zap.Config
+
+	switch loggingOutput {
+	case "json":
+		zaplog = zap.NewProductionConfig() // json format
+		zaplog.DisableCaller = true
+		zaplog.Sampling = nil
+	default:
+		zaplog = zap.NewDevelopmentConfig() // console format
+	}
+
+	logger, err := zaplog.Build()
+	if err != nil {
+		return nil, err
+	}
+	defer logger.Sync()
+
+	return logger, nil
 }
