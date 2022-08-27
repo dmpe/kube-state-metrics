@@ -30,6 +30,7 @@ import (
 type Options struct {
 	Apiserver            string
 	Kubeconfig           string
+	Logformat            string
 	Help                 bool
 	Port                 int
 	Host                 string
@@ -92,6 +93,7 @@ func (o *Options) AddFlags() {
 	o.flags.StringVar(&o.Apiserver, "apiserver", "", `The URL of the apiserver to use as a master`)
 	o.flags.StringVar(&o.Kubeconfig, "kubeconfig", "", "Absolute path to the kubeconfig file")
 	o.flags.StringVar(&o.TLSConfig, "tls-config", "", "Path to the TLS configuration file")
+	o.flags.StringVar(&o.Logformat, "logformat", "logfmt", "Use logfmt or json logging.")
 	o.flags.BoolVarP(&o.Help, "help", "h", false, "Print Help text")
 	o.flags.IntVar(&o.Port, "port", 8080, `Port to expose metrics on.`)
 	o.flags.StringVar(&o.Host, "host", "::", `Host to expose metrics on.`)
